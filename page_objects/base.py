@@ -36,7 +36,7 @@ class Base(metaclass=abc.ABCMeta):
             time.sleep(0.5)
             if self.is_loaded():
                 return
-        log_str = '{} did not load.'.format(self._desc)
+        log_str = f"'{self._desc}' did not load."
         if must_load is True:
             logging.error(log_str)
             raise TimeoutError(log_str)
@@ -65,6 +65,7 @@ class BasePage(Base, metaclass=abc.ABCMeta):
     #   All methods should be one-liners (i.e. no additional logic).
 
     def _click_element(self, locator: dict) -> None:
+        logging.info(f'Clicking element at {locator}.')
         self._find_element(locator).click()
         return
 
@@ -78,10 +79,12 @@ class BasePage(Base, metaclass=abc.ABCMeta):
         return self._driver.find_elements(by=locator['by'], value=locator['value'])
 
     def _load_page(self) -> None:
+        logging.info(f"Loading '{self._desc}'.")
         self._driver.get(self._url)
         return
 
     def _send_keystrokes_to_element(self, locator: dict, input_str: str) -> None:
+        logging.info(f'Sending keystrokes "{input_str}" to element at {locator}.')
         self._find_element(locator).send_keys(input_str)
         return
 
@@ -97,6 +100,7 @@ class BaseElement(Base, metaclass=abc.ABCMeta):
     #   Same rules as BaseClass apply.
 
     def _click(self) -> None:
+        logging.info(f"Clicking '{self._desc}'.")
         self._element.click()
         return
 
@@ -110,5 +114,6 @@ class BaseElement(Base, metaclass=abc.ABCMeta):
         return self._element.find_elements(by=locator['by'], value=locator['value'])
 
     def _send_keystrokes(self, input_str: str) -> None:
+        logging.info(f'Sending keystrokes "{input_str}" to "{self._desc}".')
         self._element.send_keys(input_str)
         return
