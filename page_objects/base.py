@@ -51,6 +51,9 @@ class Base(metaclass=abc.ABCMeta):
     #   All methods should be one-liners (i.e. no additional logic).
     #   Exception: logging.
 
+    def _get_attribute_of_element(self, attribute: str, locator: dict):
+        return self._find_element(locator).get_attribute(attribute)
+
     def _text_of_element_at(self, locator: dict) -> str:
         return self._find_element(locator).text
 
@@ -126,6 +129,9 @@ class BaseElement(Base, metaclass=abc.ABCMeta):
 
     def _find_elements(self, locator: dict) -> list[WebElement]:
         return self._element.find_elements(by=locator['by'], value=locator['value'])
+
+    def _get_attribute(self, attribute: str) -> str:
+        return self._element.get_attribute(attribute)
 
     def _send_keystrokes(self, input_str: str) -> None:
         logging.info(f'Sending keystrokes "{input_str}" to "{self._desc}".')
