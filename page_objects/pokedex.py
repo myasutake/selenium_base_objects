@@ -27,6 +27,14 @@ class PokedexPage(BasePage):
 
     # Search Results
 
+    def all_search_results_names(self) -> list[str]:
+        results = self.find_search_results()
+        return [i.name for i in results]
+
+    def all_search_results_numbers_as_ints(self) -> list[int]:
+        results = self.find_search_results()
+        return [i.number_as_int for i in results]
+
     def find_search_results(self) -> list['SearchResult']:
         elements = self._find_elements(locator=self._locators['search_result'])
         return [SearchResult(element=i) for i in elements]
