@@ -30,6 +30,9 @@ class Base(metaclass=abc.ABCMeta):
     def is_loaded(self) -> bool:
         pass
 
+    def _text_of_element_at(self, locator: dict) -> str:
+        return self._find_element(locator).text
+
     def wait_until_loaded(self, timeout=5.0, must_load=True) -> None:
         end_time = time.time() + timeout
         while time.time() < end_time:
@@ -124,3 +127,6 @@ class BaseElement(Base, metaclass=abc.ABCMeta):
         logging.info(f'Sending keystrokes "{input_str}" to "{self._desc}".')
         self._element.send_keys(input_str)
         return
+
+    def _text(self) -> str:
+        return self._element.text
