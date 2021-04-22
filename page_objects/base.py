@@ -53,6 +53,13 @@ class BasePage(Base, metaclass=abc.ABCMeta):
         self._url = url
         return
 
+    def element_exists_and_is_displayed(self, locator: dict) -> bool:
+        # This seems obvious enough to not warrant its own method.
+        #   However, calling _element_is_displayed() first could raise an unexpected exception.
+        if not self.element_exists(locator=locator):
+            return False
+        return self._element_is_displayed(locator=locator)
+
     def load_page(self) -> None:
         self._load_page()
         self.wait_until_loaded()
