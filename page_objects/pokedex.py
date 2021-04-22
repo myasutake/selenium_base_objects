@@ -15,6 +15,14 @@ class PokedexPage(BasePage):
         self._locators['search_result'] = {'by': By.CSS_SELECTOR, 'value': 'li.animating'}
         return
 
+    # Search Results
+
+    def find_search_results(self) -> list['SearchResult']:
+        elements = self._find_elements(locator=self._locators['search_result'])
+        return [SearchResult(element=i) for i in elements]
+
+    # Cookie dialog
+
     def cookies_dialog_is_displayed(self) -> bool:
         return self.element_exists_and_is_displayed(locator=self._locators['accept_cookies_button'])
 
@@ -22,9 +30,7 @@ class PokedexPage(BasePage):
         self._click_element(locator=self._locators['accept_cookies_button'])
         return
 
-    def find_search_results(self) -> list['SearchResult']:
-        elements = self._find_elements(locator=self._locators['search_result'])
-        return [SearchResult(element=i) for i in elements]
+    # Misc
 
     def is_loaded(self) -> bool:
         return self.element_exists_and_is_displayed(locator=self._locators['nav_main'])
