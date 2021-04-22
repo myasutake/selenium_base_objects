@@ -30,9 +30,6 @@ class Base(metaclass=abc.ABCMeta):
     def is_loaded(self) -> bool:
         pass
 
-    def _text_of_element_at(self, locator: dict) -> str:
-        return self._find_element(locator).text
-
     def wait_until_loaded(self, timeout=5.0, must_load=True) -> None:
         end_time = time.time() + timeout
         while time.time() < end_time:
@@ -46,6 +43,16 @@ class Base(metaclass=abc.ABCMeta):
         else:
             logging.warning(log_str)
             return
+
+    # Selenium method wrappers
+    #   In the event the Selenium methods get renamed, you only need to change them here.
+    #   All methods must be private.
+    #   Only straight Selenium code goes here.
+    #   All methods should be one-liners (i.e. no additional logic).
+    #   Exception: logging.
+
+    def _text_of_element_at(self, locator: dict) -> str:
+        return self._find_element(locator).text
 
 
 class BasePage(Base, metaclass=abc.ABCMeta):
@@ -69,10 +76,7 @@ class BasePage(Base, metaclass=abc.ABCMeta):
         return
 
     # Selenium method wrappers
-    #   In the event the Selenium methods get renamed, you only need to change them here.
-    #   All methods must be private.
-    #   Only straight Selenium code goes here.
-    #   All methods should be one-liners (i.e. no additional logic).
+    #   Same rules as Base class apply.
 
     def _click_element(self, locator: dict) -> None:
         logging.info(f'Clicking element at {locator}.')
@@ -107,7 +111,7 @@ class BaseElement(Base, metaclass=abc.ABCMeta):
         return
 
     # Selenium method wrappers
-    #   Same rules as BaseClass apply.
+    #   Same rules as Base class apply.
 
     def _click(self) -> None:
         logging.info(f"Clicking '{self._desc}'.")
