@@ -7,7 +7,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 
-class Base(metaclass=abc.ABCMeta):
+class BaseMethods(metaclass=abc.ABCMeta):
 
     def __init__(self, desc: str = None) -> None:
         self._desc = desc
@@ -25,6 +25,22 @@ class Base(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def _find_element(self, locator: dict) -> WebElement:
         pass
+
+    # Selenium method wrappers
+    #   In the event the Selenium methods get renamed, you only need to change them here.
+    #   All methods must be private.
+    #   Only straight Selenium code goes here.
+    #   All methods should be one-liners (i.e. no additional logic).
+    #   Exception: logging.
+
+    def _get_attribute_of_element(self, attribute: str, locator: dict):
+        return self._find_element(locator).get_attribute(attribute)
+
+    def _text_of_element_at(self, locator: dict) -> str:
+        return self._find_element(locator).text
+
+
+class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def is_loaded(self) -> bool:
@@ -44,21 +60,8 @@ class Base(metaclass=abc.ABCMeta):
             logging.warning(log_str)
             return
 
-    # Selenium method wrappers
-    #   In the event the Selenium methods get renamed, you only need to change them here.
-    #   All methods must be private.
-    #   Only straight Selenium code goes here.
-    #   All methods should be one-liners (i.e. no additional logic).
-    #   Exception: logging.
 
-    def _get_attribute_of_element(self, attribute: str, locator: dict):
-        return self._find_element(locator).get_attribute(attribute)
-
-    def _text_of_element_at(self, locator: dict) -> str:
-        return self._find_element(locator).text
-
-
-class BasePage(Base, metaclass=abc.ABCMeta):
+class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
     def __init__(self, driver: WebDriver, url: str = None, desc: str = None) -> None:
         super().__init__(desc=desc)
@@ -106,7 +109,7 @@ class BasePage(Base, metaclass=abc.ABCMeta):
         return
 
 
-class BaseElement(Base, metaclass=abc.ABCMeta):
+class BaseElement(BaseMethods):
 
     def __init__(self, element: WebElement, desc: str = None) -> None:
         super().__init__(desc=desc)
@@ -140,3 +143,7 @@ class BaseElement(Base, metaclass=abc.ABCMeta):
 
     def _text(self) -> str:
         return self._element.text
+
+
+class BaseLoadingElement(BaseLoadingMethods, BaseElement, metaclass=abc.ABCMeta):
+    pass

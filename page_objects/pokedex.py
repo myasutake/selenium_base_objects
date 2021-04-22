@@ -56,6 +56,3 @@ class SearchResult(BaseElement):
     @property
     def number_as_int(self) -> int:
         return int(self.number_as_str.strip('#'))
-
-    def is_loaded(self) -> bool:
-        return self._is_displayed()
