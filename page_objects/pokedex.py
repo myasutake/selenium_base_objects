@@ -1,3 +1,7 @@
+import logging
+import time
+
+from selenium.common.exceptions import ElementNotVisibleException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -12,8 +16,14 @@ class PokedexPage(BasePage):
         super().__init__(driver=driver, url='https://www.pokemon.com/us/pokedex/', desc='Pokedex Page')
         self._locators['nav_main'] = {'by': By.CSS_SELECTOR, 'value': 'nav.main'}
         self._locators['accept_cookies_button'] = {'by': By.ID, 'value': 'onetrust-accept-btn-handler'}
+        self._locators['sort_dropdown'] = {'by': By.CSS_SELECTOR, 'value': 'section.overflow-visible > div > div > div.custom-select-menu'}
         self._locators['search_result'] = {'by': By.CSS_SELECTOR, 'value': 'li.animating'}
         return
+
+    # Basic Filters
+
+    def find_sort_dropdown(self) -> 'SortDropdown':
+        return SortDropdown(element=self._find_element(locator=self._locators['sort_dropdown']))
 
     # Search Results
 
@@ -34,6 +44,70 @@ class PokedexPage(BasePage):
 
     def is_loaded(self) -> bool:
         return self.element_exists_and_is_displayed(locator=self._locators['nav_main'])
+
+
+class SortDropdown(BaseElement):
+
+    def __init__(self, element):
+        super().__init__(element=element, desc='Sort Dropdown')
+        self._locators['current_option'] = {'by': By.CSS_SELECTOR, 'value': 'label'}
+        self._locators['option'] = {'by': By.CSS_SELECTOR, 'value': 'li'}
+        return
+
+    # Displaying Options
+
+    def click_dropdown(self) -> None:
+        self._click()
+        time.sleep(0.1)
+        return
+
+    def display_options(self) -> None:
+        if self.options_are_displayed():
+            logging.debug('Options are already displayed. No action needed.')
+            return
+        self.click_dropdown()
+        return
+
+    def options_are_displayed(self) -> bool:
+        class_attributes = self._get_attribute_of_element(locator=self._locators['current_option'], attribute='class')
+        return 'opened' in class_attributes
+
+    def _verify_options_are_displayed(self) -> None:
+        if not self.options_are_displayed():
+            log_str = "Options are not displayed."
+            logging.error(log_str)
+            raise ElementNotVisibleException(log_str)
+        return
+
+    # Setting/Getting Options
+
+    def click_option(self, option: str) -> None:
+        self._verify_options_are_displayed()
+        self._find_option_element(option=option)._click()
+        return
+
+    def _find_option_element(self, option: str) -> BaseElement:
+        self._verify_options_are_displayed()
+
+        elements = self._find_elements(self._locators['option'])
+        elements = [BaseElement(element=i) for i in elements]
+        for i in elements:
+            if option.lower() == i._text().lower():
+                return i
+
+        log_str = f"Invalid option '{option}' specified."
+        logging.error(log_str)
+        raise ValueError(log_str)
+
+    @property
+    def selected_option(self) -> str:
+        return self._text_of_element_at(self._locators['current_option'])
+
+    @selected_option.setter
+    def selected_option(self, option: str) -> None:
+        self.display_options()
+        self.click_option(option=option)
+        return
 
 
 class SearchResult(BaseElement):
