@@ -46,7 +46,7 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
     def is_loaded(self) -> bool:
         pass
 
-    def wait_until_loaded(self, timeout=5.0, must_load=True) -> None:
+    def wait_until_loaded(self, timeout: float = 5.0, must_load: bool = True) -> None:
         end_time = time.time() + timeout
         while time.time() < end_time:
             time.sleep(0.5)
