@@ -114,6 +114,7 @@ class BaseElement(BaseMethods):
     def __init__(self, element: WebElement, desc: str = None) -> None:
         super().__init__(desc=desc)
         self._element = element
+        self._driver = element.parent
         return
 
     # Selenium method wrappers
