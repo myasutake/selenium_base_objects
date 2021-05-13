@@ -23,7 +23,7 @@ class PokedexPage(BasePage):
     # Basic Filters
 
     def find_sort_dropdown(self) -> 'SortDropdown':
-        return SortDropdown(element=self._find_element(locator=self._locators['sort_dropdown']))
+        return SortDropdown(element=self.find_element(locator=self._locators['sort_dropdown']))
 
     # Search Results
 
@@ -36,7 +36,7 @@ class PokedexPage(BasePage):
         return [i.number_as_int for i in results]
 
     def find_search_results(self) -> list['SearchResult']:
-        elements = self._find_elements(locator=self._locators['search_result'])
+        elements = self.find_elements(locator=self._locators['search_result'])
         return [SearchResult(element=i) for i in elements]
 
     # Cookie dialog
@@ -45,7 +45,7 @@ class PokedexPage(BasePage):
         return self.element_exists_and_is_displayed(locator=self._locators['accept_cookies_button'])
 
     def accept_cookies(self) -> None:
-        self._click_element(locator=self._locators['accept_cookies_button'])
+        self.find_element(locator=self._locators['accept_cookies_button']).click()
         return
 
     # Misc
@@ -65,7 +65,7 @@ class SortDropdown(BaseElement):
     # Displaying Options
 
     def click_dropdown(self) -> None:
-        self._click()
+        self._element.click()
         time.sleep(0.1)
         return
 
@@ -77,7 +77,8 @@ class SortDropdown(BaseElement):
         return
 
     def options_are_displayed(self) -> bool:
-        class_attributes = self._get_attribute_of_element(locator=self._locators['current_option'], attribute='class')
+        current_option_element = self.find_element(locator=self._locators['current_option'])
+        class_attributes = current_option_element.get_attribute(name='class')
         return 'opened' in class_attributes
 
     def _verify_options_are_displayed(self) -> None:
@@ -91,16 +92,15 @@ class SortDropdown(BaseElement):
 
     def click_option(self, option: str) -> None:
         self._verify_options_are_displayed()
-        self._find_option_element(option=option)._click()
+        self._find_option_element(option=option).click()
         return
 
-    def _find_option_element(self, option: str) -> BaseElement:
+    def _find_option_element(self, option: str) -> WebElement:
         self._verify_options_are_displayed()
 
-        elements = self._find_elements(self._locators['option'])
-        elements = [BaseElement(element=i) for i in elements]
+        elements = self.find_elements(self._locators['option'])
         for i in elements:
-            if option.lower() == i._text().lower():
+            if option.lower() == i.text.lower():
                 return i
 
         log_str = f"Invalid option '{option}' specified."
@@ -109,7 +109,8 @@ class SortDropdown(BaseElement):
 
     @property
     def selected_option(self) -> str:
-        return self._text_of_element_at(self._locators['current_option'])
+        element = self.find_element(locator=self._locators['current_option'])
+        return element.text
 
     @selected_option.setter
     def selected_option(self, option: str) -> None:
@@ -129,11 +130,13 @@ class SearchResult(BaseElement):
 
     @property
     def name(self) -> str:
-        return self._text_of_element_at(self._locators['name'])
+        element = self.find_element(locator=self._locators['name'])
+        return element.text
 
     @property
     def number_as_str(self) -> str:
-        return self._text_of_element_at(self._locators['number'])
+        element = self.find_element(locator=self._locators['number'])
+        return element.text
 
     @property
     def number_as_int(self) -> int:

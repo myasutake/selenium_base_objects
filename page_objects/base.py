@@ -14,30 +14,53 @@ class BaseMethods(metaclass=abc.ABCMeta):
         self._locators = dict()
         return
 
-    def element_exists(self, locator: dict) -> bool:
+    def element_exists(self, locator: dict, scope: str = None) -> bool:
         try:
-            self._find_element(locator=locator)
+            self.find_element(locator=locator, scope=scope)
         except NoSuchElementException:
             return False
         else:
             return True
 
-    @abc.abstractmethod
-    def _find_element(self, locator: dict) -> WebElement:
-        pass
+    def element_exists_and_is_displayed(self, locator: dict, scope: str = None) -> bool:
+        # This seems obvious enough to not warrant its own method.
+        #   However, calling _element_is_displayed() first could raise an unexpected exception.
+        if not self.element_exists(locator=locator, scope=scope):
+            return False
+        return self.find_element(locator=locator, scope=scope).is_displayed()
 
-    # Selenium method wrappers
-    #   In the event the Selenium methods get renamed, you only need to change them here.
-    #   All methods must be private.
-    #   Only straight Selenium code goes here.
-    #   All methods should be one-liners (i.e. no additional logic).
-    #   Exception: logging.
+    def find_element(self, locator: dict, scope: str = None) -> WebElement:
+        self._verify_scope_param(scope=scope)
 
-    def _get_attribute_of_element(self, attribute: str, locator: dict):
-        return self._find_element(locator).get_attribute(attribute)
+        if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
+            return self._driver.find_element(by=locator['by'], value=locator['value'])
+        elif (scope == 'element') or (not scope and isinstance(self, BaseElement)):
+            return self._element.find_element(by=locator['by'], value=locator['value'])
+        else:
+            log_str = f"Unhandled exception in .find_element(). scope={scope}, type(self)={type(self)}"
+            logging.error(log_str)
+            raise Exception(log_str)
 
-    def _text_of_element_at(self, locator: dict) -> str:
-        return self._find_element(locator).text
+    def find_elements(self, locator: dict, scope: str = None) -> list[WebElement]:
+        self._verify_scope_param(scope=scope)
+
+        if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
+            return self._driver.find_elements(by=locator['by'], value=locator['value'])
+        elif (scope == 'element') or (not scope and isinstance(self, BaseElement)):
+            return self._element.find_elements(by=locator['by'], value=locator['value'])
+        else:
+            log_str = f"Unhandled exception in .find_elements(). scope={scope}, type(self)={type(self)}"
+            logging.error(log_str)
+            raise Exception(log_str)
+
+    @staticmethod
+    def _verify_scope_param(scope: str) -> None:
+        if scope:
+            scope = scope.lower()
+            if scope not in ['driver', 'element']:
+                log_str = f"Invalid scope param value '{scope}'. Must be one of ['driver', 'element', None]."
+                logging.error(log_str)
+                raise ValueError(log_str)
 
 
 class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
@@ -69,43 +92,9 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
         self._url = url
         return
 
-    def element_exists_and_is_displayed(self, locator: dict) -> bool:
-        # This seems obvious enough to not warrant its own method.
-        #   However, calling _element_is_displayed() first could raise an unexpected exception.
-        if not self.element_exists(locator=locator):
-            return False
-        return self._element_is_displayed(locator=locator)
-
     def load_page(self) -> None:
-        self._load_page()
+        self._driver.get(url=self._url)
         self.wait_until_loaded()
-        return
-
-    # Selenium method wrappers
-    #   Same rules as Base class apply.
-
-    def _click_element(self, locator: dict) -> None:
-        logging.info(f'Clicking element at {locator}.')
-        self._find_element(locator).click()
-        return
-
-    def _element_is_displayed(self, locator: dict) -> bool:
-        return self._find_element(locator).is_displayed()
-
-    def _find_element(self, locator: dict) -> WebElement:
-        return self._driver.find_element(by=locator['by'], value=locator['value'])
-
-    def _find_elements(self, locator: dict) -> list[WebElement]:
-        return self._driver.find_elements(by=locator['by'], value=locator['value'])
-
-    def _load_page(self) -> None:
-        logging.info(f"Loading '{self._desc}'.")
-        self._driver.get(self._url)
-        return
-
-    def _send_keystrokes_to_element(self, locator: dict, input_str: str) -> None:
-        logging.info(f'Sending keystrokes "{input_str}" to element at {locator}.')
-        self._find_element(locator).send_keys(input_str)
         return
 
 
@@ -116,34 +105,6 @@ class BaseElement(BaseMethods):
         self._element = element
         self._driver = element.parent
         return
-
-    # Selenium method wrappers
-    #   Same rules as Base class apply.
-
-    def _click(self) -> None:
-        logging.info(f"Clicking '{self._desc}'.")
-        self._element.click()
-        return
-
-    def _is_displayed(self) -> bool:
-        return self._element.is_displayed()
-
-    def _find_element(self, locator: dict) -> WebElement:
-        return self._element.find_element(by=locator['by'], value=locator['value'])
-
-    def _find_elements(self, locator: dict) -> list[WebElement]:
-        return self._element.find_elements(by=locator['by'], value=locator['value'])
-
-    def _get_attribute(self, attribute: str) -> str:
-        return self._element.get_attribute(attribute)
-
-    def _send_keystrokes(self, input_str: str) -> None:
-        logging.info(f'Sending keystrokes "{input_str}" to "{self._desc}".')
-        self._element.send_keys(input_str)
-        return
-
-    def _text(self) -> str:
-        return self._element.text
 
 
 class BaseLoadingElement(BaseLoadingMethods, BaseElement, metaclass=abc.ABCMeta):
