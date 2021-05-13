@@ -14,6 +14,9 @@ class BaseMethods(metaclass=abc.ABCMeta):
         self._locators = dict()
         return
 
+    def __str__(self):
+        return self._desc
+
     def element_exists(self, locator: dict, scope: str = None) -> bool:
         try:
             self.find_element(locator=locator, scope=scope)
