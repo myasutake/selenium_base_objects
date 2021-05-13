@@ -11,7 +11,7 @@ from selenium.webdriver.remote.webelement import WebElement
 class BaseMethods(metaclass=abc.ABCMeta):
 
     def __init__(self, driver: WebDriver, desc: str = None) -> None:
-        self._driver = driver
+        self.driver = driver
         self._desc = desc
         self._locators = dict()
         return
@@ -38,9 +38,9 @@ class BaseMethods(metaclass=abc.ABCMeta):
         self._verify_scope_param(scope=scope)
 
         if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
-            return self._driver.find_element(by=locator['by'], value=locator['value'])
+            return self.driver.find_element(by=locator['by'], value=locator['value'])
         elif (scope == 'element') or (not scope and isinstance(self, BaseElement)):
-            return self._element.find_element(by=locator['by'], value=locator['value'])
+            return self.element.find_element(by=locator['by'], value=locator['value'])
         else:
             log_str = f"Unhandled exception in .find_element(). scope={scope}, type(self)={type(self)}"
             logging.error(log_str)
@@ -50,16 +50,16 @@ class BaseMethods(metaclass=abc.ABCMeta):
         self._verify_scope_param(scope=scope)
 
         if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
-            return self._driver.find_elements(by=locator['by'], value=locator['value'])
+            return self.driver.find_elements(by=locator['by'], value=locator['value'])
         elif (scope == 'element') or (not scope and isinstance(self, BaseElement)):
-            return self._element.find_elements(by=locator['by'], value=locator['value'])
+            return self.element.find_elements(by=locator['by'], value=locator['value'])
         else:
             log_str = f"Unhandled exception in .find_elements(). scope={scope}, type(self)={type(self)}"
             logging.error(log_str)
             raise Exception(log_str)
 
     def mouseover(self, element: WebElement) -> None:
-        ActionChains(self._driver).move_to_element(element).perform()
+        ActionChains(self.driver).move_to_element(element).perform()
         return
 
     @staticmethod
@@ -101,7 +101,7 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
         return
 
     def load_page(self) -> None:
-        self._driver.get(url=self._url)
+        self.driver.get(url=self._url)
         self.wait_until_loaded()
         return
 
@@ -110,7 +110,7 @@ class BaseElement(BaseMethods):
 
     def __init__(self, element: WebElement, desc: str = None) -> None:
         super().__init__(driver=element.parent, desc=desc)
-        self._element = element
+        self.element = element
         return
 
 

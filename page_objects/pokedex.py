@@ -65,7 +65,7 @@ class SortDropdown(BaseElement):
     # Displaying Options
 
     def click_dropdown(self) -> None:
-        self._element.click()
+        self.element.click()
         time.sleep(0.1)
         return
 
