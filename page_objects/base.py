@@ -35,6 +35,7 @@ class BaseMethods(metaclass=abc.ABCMeta):
         return self.find_element(locator=locator, scope=scope).is_displayed()
 
     def find_element(self, locator: dict, scope: str = None) -> WebElement:
+        scope = scope.lower()
         self._verify_scope_param(scope=scope)
 
         if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
@@ -47,6 +48,7 @@ class BaseMethods(metaclass=abc.ABCMeta):
             raise Exception(log_str)
 
     def find_elements(self, locator: dict, scope: str = None) -> list[WebElement]:
+        scope = scope.lower()
         self._verify_scope_param(scope=scope)
 
         if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
