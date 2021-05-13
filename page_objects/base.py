@@ -3,13 +3,15 @@ import logging
 import time
 
 from selenium.common.exceptions import NoSuchElementException
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 
 
 class BaseMethods(metaclass=abc.ABCMeta):
 
-    def __init__(self, desc: str = None) -> None:
+    def __init__(self, driver: WebDriver, desc: str = None) -> None:
+        self._driver = driver
         self._desc = desc
         self._locators = dict()
         return
@@ -56,6 +58,10 @@ class BaseMethods(metaclass=abc.ABCMeta):
             logging.error(log_str)
             raise Exception(log_str)
 
+    def mouseover(self, element: WebElement) -> None:
+        ActionChains(self._driver).move_to_element(element).perform()
+        return
+
     @staticmethod
     def _verify_scope_param(scope: str) -> None:
         if scope:
@@ -90,8 +96,7 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
 class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
     def __init__(self, driver: WebDriver, url: str = None, desc: str = None) -> None:
-        super().__init__(desc=desc)
-        self._driver = driver
+        super().__init__(driver=driver, desc=desc)
         self._url = url
         return
 
@@ -104,9 +109,8 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 class BaseElement(BaseMethods):
 
     def __init__(self, element: WebElement, desc: str = None) -> None:
-        super().__init__(desc=desc)
+        super().__init__(driver=element.parent, desc=desc)
         self._element = element
-        self._driver = element.parent
         return
 
 
