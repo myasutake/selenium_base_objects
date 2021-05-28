@@ -10,14 +10,10 @@ from selenium.webdriver.remote.webelement import WebElement
 
 class BaseMethods(metaclass=abc.ABCMeta):
 
-    def __init__(self, driver: WebDriver, desc: str = None) -> None:
+    def __init__(self, driver: WebDriver) -> None:
         self.driver = driver
-        self._desc = desc
         self._locators = dict()
         return
-
-    def __str__(self):
-        return self._desc
 
     def element_exists(self, locator: dict, scope: str = None) -> bool:
         try:
@@ -88,7 +84,7 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
             time.sleep(0.5)
             if self.is_loaded():
                 return
-        log_str = f"'{self._desc}' did not load."
+        log_str = f"'{self}' did not load."
         if must_load is True:
             logging.error(log_str)
             raise TimeoutError(log_str)
@@ -99,8 +95,8 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
 
 class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
-    def __init__(self, driver: WebDriver, url: str = None, desc: str = None) -> None:
-        super().__init__(driver=driver, desc=desc)
+    def __init__(self, driver: WebDriver, url: str = None) -> None:
+        super().__init__(driver=driver)
         self._url = url
         return
 
@@ -112,8 +108,8 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
 class BaseElement(BaseMethods):
 
-    def __init__(self, element: WebElement, desc: str = None) -> None:
-        super().__init__(driver=element.parent, desc=desc)
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(driver=element.parent)
         self.element = element
         return
 
