@@ -84,13 +84,10 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
             time.sleep(0.5)
             if self.is_loaded():
                 return
-        log_str = f"'{self}' did not load."
         if must_load is True:
+            log_str = f"'{self}' did not load."
             logging.error(log_str)
             raise TimeoutError(log_str)
-        else:
-            logging.debug(log_str)
-            return
 
 
 class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
