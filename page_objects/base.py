@@ -98,6 +98,11 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
         return
 
     def load_page(self) -> None:
+        if not self._url:
+            log_str = 'No URL was specified when this object was created.'
+            logging.error(log_str)
+            raise ValueError(log_str)
+
         self.driver.get(url=self._url)
         self.wait_until_loaded()
         return
