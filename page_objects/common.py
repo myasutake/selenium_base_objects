@@ -11,6 +11,9 @@ import page_objects.base
 
 
 class Checkbox(page_objects.base.BaseElement):
+    """
+    <input type="checkbox">
+    """
 
     def __init__(self, element: WebElement, desc: str = 'Checkbox') -> None:
         super().__init__(element=element, desc=desc)
