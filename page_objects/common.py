@@ -2,6 +2,7 @@
 Classes used for common HTML elements.
 """
 
+import logging
 import time
 
 from selenium.webdriver.remote.webelement import WebElement
@@ -18,15 +19,21 @@ class Checkbox(page_objects.base.BaseElement):
     @property
     def checked(self) -> bool:
         checked_attribute = self.element.get_attribute('checked')
+        log_str = f'{self} value: {bool(checked_attribute)}.'
+        logging.debug(log_str)
         return bool(checked_attribute)
 
     @checked.setter
     def checked(self, value: bool) -> None:
         if self.checked != value:
             self.click()
+        else:
+            log_str = f'{self} value already {value}; no need to click.'
+            logging.debug(log_str)
         return
 
     def click(self) -> None:
+        logging.info(f'Clicking {self}...')
         self.element.click()
         time.sleep(0.5)
         return

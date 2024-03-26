@@ -30,13 +30,11 @@ class Page(page_objects.base.BasePage):
 
     def click_checkbox_1(self) -> None:
         checkbox = self.get_checkbox_1()
-        logging.info('Clicking Checkbox 1...')
         checkbox.click()
         return
 
     def click_checkbox_2(self) -> None:
         checkbox = self.get_checkbox_2()
-        logging.info('Clicking Checkbox 2...')
         checkbox.click()
         return
 
@@ -46,8 +44,16 @@ class Page(page_objects.base.BasePage):
         checkbox_1 = self.get_checkbox_1()
         checkbox_2 = self.get_checkbox_2()
         if not checkbox_1.element.is_displayed():
+            log_str = f'{self} not yet loaded; {checkbox_1} not displayed...'
+            logging.debug(log_str)
             return False
-        return checkbox_2.element.is_displayed()
+        if not checkbox_2.element.is_displayed():
+            log_str = f'{self} not yet loaded; {checkbox_2} not displayed...'
+            logging.debug(log_str)
+            return False
+        log_str = f'{self} loaded.'
+        logging.debug(log_str)
+        return True
 
     def get_checkbox_1(self) -> page_objects.common.Checkbox:
         elements = self.find_elements(locator=self._locators['checkboxes'], scope='driver')

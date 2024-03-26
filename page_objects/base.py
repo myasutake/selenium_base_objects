@@ -137,6 +137,7 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
             logging.error(log_str)
             raise ValueError(log_str)
 
+        logging.debug(f'Navigating to {self}...')
         self.driver.get(url=self._url)
         self.wait_until_loaded()
         return

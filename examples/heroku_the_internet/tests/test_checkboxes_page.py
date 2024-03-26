@@ -24,7 +24,6 @@ def launch_chrome() -> WebDriver:
 def navigate_to_page(launch_chrome) -> checkboxes.Page:
     driver = launch_chrome
     page = checkboxes.Page(driver)
-    logging.debug(f'Navigating to {page}...')
     page.load_page()
     return page
 
