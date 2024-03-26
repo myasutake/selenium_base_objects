@@ -14,6 +14,7 @@ class Page(page_objects.base.BasePage):
         super().__init__(driver)
         self._url = 'https://the-internet.herokuapp.com/checkboxes'
         self._locators['checkboxes'] = {'by': By.CSS_SELECTOR, 'value': '#checkboxes > input[type="checkbox"]'}
+        self._desc = 'Checkboxes Page'
         return
 
     # States
@@ -60,6 +61,3 @@ class Page(page_objects.base.BasePage):
     def get_checkbox_2_element(self) -> WebElement:
         elements = self.find_elements(locator=self._locators['checkboxes'], scope='driver')
         return elements[1]
-
-    def __str__(self) -> str:
-        return 'Checkboxes Page'
