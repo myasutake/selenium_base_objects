@@ -20,9 +20,10 @@ from selenium.webdriver.remote.webelement import WebElement
 class BaseMethods(metaclass=abc.ABCMeta):
     """Methods used by all Page Objects"""
 
-    def __init__(self, driver: WebDriver) -> None:
+    def __init__(self, driver: WebDriver, desc: str = '') -> None:
         self.driver = driver
         self._locators = dict()
+        self._desc = desc
         return
 
     def element_exists(self, locator: dict, scope: str = None) -> bool:
@@ -99,6 +100,9 @@ class BaseMethods(metaclass=abc.ABCMeta):
                 logging.error(log_str)
                 raise ValueError(log_str)
 
+    def __str__(self) -> str:
+        return self._desc
+
 
 class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
     """Methods used by Page Objects which have a loading state."""
@@ -122,8 +126,8 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
 
 class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
-    def __init__(self, driver: WebDriver, url: str = None) -> None:
-        super().__init__(driver=driver)
+    def __init__(self, driver: WebDriver, url: str = None, desc: str = 'Base Page') -> None:
+        super().__init__(driver=driver, desc=desc)
         self._url = url
         return
 
@@ -140,8 +144,8 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
 class BaseElement(BaseMethods):
 
-    def __init__(self, element: WebElement) -> None:
-        super().__init__(driver=element.parent)
+    def __init__(self, element: WebElement, desc: str = 'Base Element') -> None:
+        super().__init__(driver=element.parent, desc=desc)
         self.element = element
         return
 

@@ -11,8 +11,8 @@ import page_objects.base
 
 class Checkbox(page_objects.base.BaseElement):
 
-    def __init__(self, element: WebElement) -> None:
-        super().__init__(element=element)
+    def __init__(self, element: WebElement, desc: str = 'Checkbox') -> None:
+        super().__init__(element=element, desc=desc)
         return
 
     @property
