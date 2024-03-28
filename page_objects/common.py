@@ -5,7 +5,6 @@ Classes used for common HTML elements.
 import logging
 import time
 
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
@@ -61,7 +60,7 @@ class Dropdown(page_objects.base.BaseElement):
     @property
     def options(self) -> list[str]:
         options_list = []
-        for i in self._find_options_elements():
+        for i in self._get_options():
             options_list.append(i.text)
 
         log_str = f"Options for {self}:"
@@ -73,11 +72,12 @@ class Dropdown(page_objects.base.BaseElement):
 
     @property
     def selected_option(self) -> str:
-        for i_option_element in self._find_options_elements():
-            if self._option_is_selected(element=i_option_element):
-                log_str = f"'{i_option_element.text}' currently selected for {self}."
+        for i_option in self._get_options():
+            if i_option.is_selected():
+                log_str = f"'{i_option.text}' currently selected for {self}."
                 logging.debug(log_str)
-                return i_option_element.text
+                return i_option.text
+
         log_str = f"{self} has no option selected. (How is this possible???)"
         logging.error(log_str)
         raise Exception(log_str)
@@ -86,17 +86,9 @@ class Dropdown(page_objects.base.BaseElement):
     def selected_option(self, value: str) -> None:
         self._verify_no_duplicate_options()
 
-        for i_option_element in self._find_options_elements():
-            if i_option_element.text == value:
-                if self._option_is_selected(element=i_option_element):
-                    log_str = f"Option '{value}' is already selected."
-                    logging.debug(log_str)
-                if self._option_is_disabled(element=i_option_element):
-                    log_str = f"Option '{value}' is disabled."
-                    logging.warning(log_str)
-                logging.info(f"Clicking '{value}'...")
-                i_option_element.click()
-                time.sleep(0.5)
+        for i_option in self._get_options():
+            if i_option.text == value:
+                i_option.click()
                 return
 
         log_str = f"Option '{value}' not found for {self}."
@@ -114,16 +106,12 @@ class Dropdown(page_objects.base.BaseElement):
         else:
             return False
 
-    def _find_options_elements(self) -> list[WebElement]:
-        return self.find_elements(locator=self._locators['options'], scope='element')
-
-    def _find_option_element_with_text(self, text: str) -> WebElement:
-        for i_element in self._find_options_elements():
-            if i_element.text == text:
-                return i_element
-        log_str = f"Option '{text}' not found."
-        logging.error(log_str)
-        raise NoSuchElementException(log_str)
+    def _get_options(self) -> list['Option']:
+        elements_list = self.find_elements(locator=self._locators['options'], scope='element')
+        options_list = []
+        for i in elements_list:
+            options_list.append(Option(element=i))
+        return options_list
 
     @staticmethod
     def _option_is_disabled(element: WebElement) -> bool:
