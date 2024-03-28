@@ -2,6 +2,7 @@
 Classes used for common HTML elements.
 """
 
+import abc
 import logging
 import time
 
@@ -9,6 +10,19 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 
 import page_objects.base
+
+
+class CanDisable(page_objects.base.BaseElement, metaclass=abc.ABCMeta):
+
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        return
+
+    def is_disabled(self) -> bool:
+        if self.element.get_attribute('disabled') == 'true':
+            return True
+        else:
+            return False
 
 
 class Checkbox(page_objects.base.BaseElement):
@@ -46,7 +60,7 @@ class Checkbox(page_objects.base.BaseElement):
     # I would define a method that returns the label, but there's no standard DOM structure for that.
 
 
-class Dropdown(page_objects.base.BaseElement):
+class Dropdown(CanDisable):
     """
     <select>
     """
@@ -137,7 +151,30 @@ class Dropdown(page_objects.base.BaseElement):
         return
 
 
-class Option(page_objects.base.BaseElement):
+class InputText(CanDisable):
+    """
+    <input type="text">
+    """
+
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        return
+
+    @property
+    def value(self) -> str:
+        return self.element.get_attribute('value')
+
+    @value.setter
+    def value(self, input_: str) -> None:
+        self.element.send_keys(input_)
+        return
+
+    @property
+    def name(self) -> str:
+        return 'Input Text Field'
+
+
+class Option(CanDisable):
     """
     <option>
     """
@@ -146,12 +183,6 @@ class Option(page_objects.base.BaseElement):
         super().__init__(element=element)
         self._name = self.name
         return
-
-    def is_disabled(self) -> bool:
-        if self.element.get_attribute('disabled') == 'true':
-            return True
-        else:
-            return False
 
     def is_selected(self) -> bool:
         if self.element.get_attribute('selected') == 'true':
