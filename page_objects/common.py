@@ -145,3 +145,42 @@ class Dropdown(page_objects.base.BaseElement):
             logging.error(log_str)
             raise ValueError(log_str)
         return
+
+
+class Option(page_objects.base.BaseElement):
+    """
+    <option>
+    """
+
+    def __init__(self, element: WebElement, desc: str = None) -> None:
+        super().__init__(element=element, desc=desc)
+        if desc is None:
+            self._desc = self.text
+        return
+
+    def is_disabled(self) -> bool:
+        if self.element.get_attribute('disabled') == 'true':
+            return True
+        else:
+            return False
+
+    def is_selected(self) -> bool:
+        if self.element.get_attribute('selected') == 'true':
+            return True
+        else:
+            return False
+
+    @property
+    def text(self) -> str:
+        return self.element.text
+
+    def click(self) -> None:
+        if self.is_selected():
+            log_str = f"Option '{self}' is already selected."
+            logging.debug(log_str)
+        if self.is_disabled():
+            log_str = f"Option '{self}' is disabled."
+            logging.warning(log_str)
+        logging.info(f"Clicking '{self}'...")
+        self.element.click()
+        return
