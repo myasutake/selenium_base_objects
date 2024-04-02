@@ -12,7 +12,7 @@ class Page(page_objects.base.BasePage):
     def __init__(self, driver: WebDriver) -> None:
         super().__init__(driver)
         self._url = 'https://the-internet.herokuapp.com/checkboxes'
-        self._locators['checkboxes'] = {'by': By.CSS_SELECTOR, 'value': '#checkboxes > input[type="checkbox"]'}
+        self._locators['checkboxes'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#checkboxes > input[type="checkbox"]'}
         self._desc = 'Checkboxes Page'
         return
 
@@ -56,9 +56,9 @@ class Page(page_objects.base.BasePage):
         return True
 
     def get_checkbox_1(self) -> page_objects.common.Checkbox:
-        elements = self.find_elements(locator=self._locators['checkboxes'], scope='driver')
+        elements = self.find_elements(locator=self._locators['checkboxes'])
         return page_objects.common.Checkbox(element=elements[0], desc='Checkbox 1')
 
     def get_checkbox_2(self) -> page_objects.common.Checkbox:
-        elements = self.find_elements(locator=self._locators['checkboxes'], scope='driver')
+        elements = self.find_elements(locator=self._locators['checkboxes'])
         return page_objects.common.Checkbox(element=elements[1], desc='Checkbox 2')

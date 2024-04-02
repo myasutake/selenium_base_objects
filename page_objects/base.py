@@ -50,64 +50,50 @@ class BaseMethods(metaclass=abc.ABCMeta):
         self._desc = desc
         return
 
-    def element_exists(self, locator: dict, scope: str = None) -> bool:
+    def element_exists(self, locator: Locator) -> bool:
         try:
-            self.find_element(locator=locator, scope=scope)
+            self.find_element(locator=locator)
         except NoSuchElementException:
             return False
         else:
             return True
 
-    def element_exists_and_is_displayed(self, locator: dict, scope: str = None) -> bool:
+    def element_exists_and_is_displayed(self, locator: Locator) -> bool:
         # This seems obvious enough to not warrant its own method.
         #   However, calling _element_is_displayed() first could raise an unexpected exception.
-        if not self.element_exists(locator=locator, scope=scope):
+        if not self.element_exists(locator=locator):
             return False
-        return self.find_element(locator=locator, scope=scope).is_displayed()
+        return self.find_element(locator=locator).is_displayed()
 
-    def find_element(self, locator: dict, scope: str = None) -> WebElement:
+    def find_element(self, locator: Locator) -> WebElement:
         """
         Finds a WebElement at the given locator.
-
-        :param locator: Locator of the WebElement.
-        :param scope: Determines scope of search. Can be 'driver' or 'element'.
-            if 'driver': self.driver.find_element() is executed.
-            if 'element': self.element.find_element() is executed.
-        :return: WebElement.
         """
-        self._verify_scope_param(scope=scope)
-        if scope:
-            scope = scope.lower()
+        self._verify_scope_param(scope=locator['scope'])
+        locator['scope'] = locator['scope'].lower()
 
-        if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
+        if locator['scope'] == 'driver':
             return self.driver.find_element(by=locator['by'], value=locator['value'])
-        elif (scope == 'element') or (not scope and isinstance(self, BaseElement)):
+        elif locator['scope'] == 'element':
             return self.element.find_element(by=locator['by'], value=locator['value'])
         else:
-            log_str = f"Unhandled exception in .find_element(). scope={scope}, type(self)={type(self)}"
+            log_str = f"Unhandled exception in .find_element(). scope={locator['scope']}"
             logging.error(log_str)
             raise Exception(log_str)
 
-    def find_elements(self, locator: dict, scope: str = None) -> list[WebElement]:
+    def find_elements(self, locator: Locator) -> list[WebElement]:
         """
         Finds multiple WebElements at the given locator.
-
-        :param locator: Locator of the WebElements.
-        :param scope: Determines scope of search. Can be 'driver' or 'element'.
-            if 'driver': self.driver.find_elements() is executed.
-            if 'element': self.element.find_elements() is executed.
-        :return: list of WebElements.
         """
-        self._verify_scope_param(scope=scope)
-        if scope:
-            scope = scope.lower()
+        self._verify_scope_param(scope=locator['scope'])
+        locator['scope'] = locator['scope'].lower()
 
-        if (scope == 'driver') or (not scope and isinstance(self, BasePage)):
+        if locator['scope'] == 'driver':
             return self.driver.find_elements(by=locator['by'], value=locator['value'])
-        elif (scope == 'element') or (not scope and isinstance(self, BaseElement)):
+        elif locator['scope'] == 'element':
             return self.element.find_elements(by=locator['by'], value=locator['value'])
         else:
-            log_str = f"Unhandled exception in .find_elements(). scope={scope}, type(self)={type(self)}"
+            log_str = f"Unhandled exception in .find_elements(). scope={locator['scope']}"
             logging.error(log_str)
             raise Exception(log_str)
 
@@ -117,12 +103,16 @@ class BaseMethods(metaclass=abc.ABCMeta):
 
     @staticmethod
     def _verify_scope_param(scope: str) -> None:
-        if scope:
-            scope = scope.lower()
-            if scope not in ['driver', 'element']:
-                log_str = f"Invalid scope param value '{scope}'. Must be one of ['driver', 'element', None]."
-                logging.error(log_str)
-                raise ValueError(log_str)
+        log_str = f"Invalid scope param value '{scope}'. Must be one of ['driver', 'element']."
+
+        if not scope:
+            logging.error(log_str)
+            raise TypeError(log_str)
+
+        scope = scope.lower()
+        if scope not in ['driver', 'element']:
+            logging.error(log_str)
+            raise ValueError(log_str)
 
     def __str__(self) -> str:
         return self._desc

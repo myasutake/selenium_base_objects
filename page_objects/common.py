@@ -52,7 +52,7 @@ class Dropdown(page_objects.base.BaseElement):
 
     def __init__(self, element: WebElement, desc: str = 'Dropdown') -> None:
         super().__init__(element=element, desc=desc)
-        self._locators['options'] = {'by': By.CSS_SELECTOR, 'value': 'option'}
+        self._locators['options'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'option'}
         return
 
     # Get/Set Options
@@ -107,7 +107,7 @@ class Dropdown(page_objects.base.BaseElement):
             return False
 
     def _get_options(self) -> list['Option']:
-        elements_list = self.find_elements(locator=self._locators['options'], scope='element')
+        elements_list = self.find_elements(locator=self._locators['options'])
         options_list = []
         for i in elements_list:
             options_list.append(Option(element=i))

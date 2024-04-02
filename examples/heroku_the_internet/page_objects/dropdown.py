@@ -12,7 +12,7 @@ class Page(page_objects.base.BasePage):
     def __init__(self, driver: WebDriver) -> None:
         super().__init__(driver)
         self._url = 'https://the-internet.herokuapp.com/dropdown'
-        self._locators['dropdown'] = {'by': By.CSS_SELECTOR, 'value': '#dropdown'}
+        self._locators['dropdown'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#dropdown'}
         self._desc = 'Dropdown Page'
         return
 
@@ -38,5 +38,5 @@ class Page(page_objects.base.BasePage):
         return True
 
     def _get_dropdown(self) -> page_objects.common.Dropdown:
-        element = self.find_element(locator=self._locators['dropdown'], scope='driver')
+        element = self.find_element(locator=self._locators['dropdown'])
         return page_objects.common.Dropdown(element=element, desc='Dropdown')
