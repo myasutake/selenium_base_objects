@@ -10,11 +10,35 @@ Your page objects must subclass one of the following:
 import abc
 import logging
 import time
+from typing import TypedDict
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
+
+
+class Locator(TypedDict):
+    """
+    Locators used to find elements.
+
+    The base classes defined below are using a slightly modified version of
+    Selenium's built-in find_element() and find_elements() methods.
+
+    Selenium's built-in methods require two arguments:
+        'by': search type (e.g. by id, xpath, css selector, etc.)
+        'value': value of the search type (e.g. the actual id, xpath, css selector, etc.)
+
+    But Selenium also needs to know how the search is being executed:
+        webdriver.find_element(by, value) -OR-
+        webelement.find_element(by, value)
+
+    So we really need a third argument to provide the scope of the search:
+        'scope': 'driver' or 'element'
+    """
+    scope: str
+    by: str
+    value: str
 
 
 class BaseMethods(metaclass=abc.ABCMeta):
