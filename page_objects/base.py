@@ -167,3 +167,83 @@ class BaseElement(BaseMethods):
 
 class BaseLoadingElement(BaseLoadingMethods, BaseElement, metaclass=abc.ABCMeta):
     pass
+
+
+class BaseOpenCloseElement(BaseElement, metaclass=abc.ABCMeta):
+    """
+    Used for an element that has an opened/closed state.
+
+    Also works for expanded/collapsed.
+    """
+
+    @abc.abstractmethod
+    def is_closed(self) -> bool:
+        """Criteria to determine if the element is deemed closed."""
+        pass
+
+    @abc.abstractmethod
+    def is_open(self) -> bool:
+        """Criteria to determine if the element is deemed open."""
+        pass
+
+    # These two methods do not need to be defined - a user may not have the option
+    #   to open/close an element; it may be open/closed based on some other input.
+    #   But because a user option usually exists, I'm including the methods'
+    #   prototypes here.
+    #
+    # def close(self) -> None:
+    #     # user action to close the element (e.g. click on the menu icon)
+    #     # wait_until_closed()
+    #     return
+    #
+    # def open(self) -> None:
+    #     # user action to open the element (e.g. click on the menu icon)
+    #     # wait_until_opened()
+    #     return
+
+    def wait_until_closed(self, timeout: float = 5.0, must_close: bool = True) -> None:
+        end_time = time.time() + timeout
+        while time.time() < end_time:
+            time.sleep(0.5)
+            if self.is_closed():
+                return
+        if must_close is True:
+            log_str = f"'{self}' did not close."
+            logging.error(log_str)
+            raise TimeoutError(log_str)
+
+    def wait_until_open(self, timeout: float = 5.0, must_open: bool = True) -> None:
+        end_time = time.time() + timeout
+        while time.time() < end_time:
+            time.sleep(0.5)
+            if self.is_open():
+                return
+        if must_open is True:
+            log_str = f"'{self}' did not open."
+            logging.error(log_str)
+            raise TimeoutError(log_str)
+
+    # The following methods are just wrappers. They can read easier for elements that
+    #   open/close differently, e.g. an accordion-type element that expands/collapses.from
+
+    # def collapse(self) -> None:
+    #     self.close()
+    #     return
+    #
+    # def open(self) -> None:
+    #     self.open()
+    #     return
+
+    def is_collapsed(self) -> bool:
+        return self.is_closed()
+
+    def is_expanded(self) -> bool:
+        return self.is_open()
+
+    def wait_until_collapsed(self, timeout: float = 5.0, must_collapse: bool = True) -> None:
+        self.wait_until_closed(timeout=timeout, must_close=must_collapse)
+        return
+
+    def wait_until_expanded(self, timeout: float = 5.0, must_expand: bool = True) -> None:
+        self.wait_until_open(timeout=timeout, must_open=must_expand)
+        return
