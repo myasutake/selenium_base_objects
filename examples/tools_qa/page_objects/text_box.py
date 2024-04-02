@@ -29,3 +29,43 @@ class SideNav(page_objects.base.BaseElement):
 
     def __init__(self, element: WebElement) -> None:
         super().__init__(element=element)
+        self._locators['group'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'div.element-group'}
+        self._name = 'Side Nav'
+        return
+
+    def _get_nav_groups(self) -> list['SideNavGroup']:
+        groups = []
+        for i in self.find_elements(locator=self._locators['group']):
+            groups.append(SideNavGroup(element=i))
+        return groups
+
+
+class SideNavGroup(page_objects.base.BaseOpenCloseElement):
+
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        self._locators['header_button'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'span.group-header'}
+        self._locators['link_list'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'div.element-list'}
+        self._name = self.name
+        return
+
+    def is_closed(self) -> bool:
+        link_list = self.find_element(locator=self._locators['link_list'])
+        classes = link_list.get_attribute('class')
+        return 'show' not in classes
+
+    def is_open(self) -> bool:
+        link_list = self.find_element(locator=self._locators['link_list'])
+        classes = link_list.get_attribute('class')
+        return 'show' in classes
+
+    @property
+    def name(self) -> str:
+        header_element = self.find_element(locator=self._locators['header_button'])
+        return header_element.text
+
+    def __repr__(self) -> str:
+        return f"{self.__class__} - '{self.name}'"
+
+    def __str__(self) -> str:
+        return f"Side Nav Group: '{self.name}'"
