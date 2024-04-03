@@ -10,7 +10,7 @@ Your page objects must subclass one of the following:
 import abc
 import logging
 import time
-from typing import TypedDict
+from typing import Optional, TypedDict
 
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.common.action_chains import ActionChains
@@ -44,8 +44,9 @@ class Locator(TypedDict):
 class BaseMethods(metaclass=abc.ABCMeta):
     """Methods used by all Page Objects"""
 
-    def __init__(self, driver: WebDriver, desc: str = '') -> None:
+    def __init__(self, driver: WebDriver, element: Optional[WebElement] = None, desc: str = '') -> None:
         self.driver = driver
+        self.element = element
         self._locators = dict()
         self._desc = desc
         return
@@ -160,8 +161,7 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 class BaseElement(BaseMethods):
 
     def __init__(self, element: WebElement, desc: str = 'Base Element') -> None:
-        super().__init__(driver=element.parent, desc=desc)
-        self.element = element
+        super().__init__(driver=element.parent, element=element, desc=desc)
         return
 
 
