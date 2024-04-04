@@ -16,8 +16,9 @@ class Checkbox(page_objects.base.BaseElement):
     <input type="checkbox">
     """
 
-    def __init__(self, element: WebElement, desc: str = 'Checkbox') -> None:
-        super().__init__(element=element, desc=desc)
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        self._name = 'Checkbox'
         return
 
     @property
@@ -50,9 +51,10 @@ class Dropdown(page_objects.base.BaseElement):
     <select>
     """
 
-    def __init__(self, element: WebElement, desc: str = 'Dropdown') -> None:
-        super().__init__(element=element, desc=desc)
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
         self._locators['options'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'option'}
+        self._name = 'Dropdown'
         return
 
     # Get/Set Options
@@ -140,10 +142,9 @@ class Option(page_objects.base.BaseElement):
     <option>
     """
 
-    def __init__(self, element: WebElement, desc: str = None) -> None:
-        super().__init__(element=element, desc=desc)
-        if desc is None:
-            self._desc = self.text
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        self._name = 'Dropdown Option'
         return
 
     def is_disabled(self) -> bool:

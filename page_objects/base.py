@@ -44,11 +44,11 @@ class Locator(TypedDict):
 class BaseMethods(metaclass=abc.ABCMeta):
     """Methods used by all Page Objects"""
 
-    def __init__(self, driver: WebDriver, element: Optional[WebElement] = None, desc: str = '') -> None:
+    def __init__(self, driver: WebDriver, element: Optional[WebElement] = None) -> None:
         self.driver = driver
         self.element = element
         self._locators = dict()
-        self._desc = desc
+        self._name = ''
         return
 
     def element_exists(self, locator: Locator) -> bool:
@@ -115,8 +115,17 @@ class BaseMethods(metaclass=abc.ABCMeta):
             logging.error(log_str)
             raise ValueError(log_str)
 
+    @property
+    def name(self) -> str:
+        return self._name
+
+    @name.setter
+    def name(self, value: str) -> None:
+        self._name = value
+        return
+
     def __str__(self) -> str:
-        return self._desc
+        return self.name
 
 
 class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
@@ -141,8 +150,8 @@ class BaseLoadingMethods(BaseMethods, metaclass=abc.ABCMeta):
 
 class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
-    def __init__(self, driver: WebDriver, url: str = None, desc: str = 'Base Page') -> None:
-        super().__init__(driver=driver, desc=desc)
+    def __init__(self, driver: WebDriver, url: str = None) -> None:
+        super().__init__(driver=driver)
         self._url = url
         return
 
@@ -160,8 +169,8 @@ class BasePage(BaseLoadingMethods, metaclass=abc.ABCMeta):
 
 class BaseElement(BaseMethods):
 
-    def __init__(self, element: WebElement, desc: str = 'Base Element') -> None:
-        super().__init__(driver=element.parent, element=element, desc=desc)
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(driver=element.parent, element=element)
         return
 
 
