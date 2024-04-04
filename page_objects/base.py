@@ -124,6 +124,9 @@ class BaseMethods(metaclass=abc.ABCMeta):
         self._name = value
         return
 
+    def __repr__(self) -> str:
+        return f'{self.__class__}'
+
     def __str__(self) -> str:
         return self.name
 
