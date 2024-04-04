@@ -144,7 +144,7 @@ class Option(page_objects.base.BaseElement):
 
     def __init__(self, element: WebElement) -> None:
         super().__init__(element=element)
-        self._name = 'Dropdown Option'
+        self._name = self.name
         return
 
     def is_disabled(self) -> bool:
@@ -173,3 +173,7 @@ class Option(page_objects.base.BaseElement):
         logging.info(f"Clicking '{self}'...")
         self.element.click()
         return
+
+    @property
+    def name(self) -> str:
+        return f"Option: '{self.text}'"
