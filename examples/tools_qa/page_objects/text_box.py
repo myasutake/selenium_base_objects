@@ -71,6 +71,11 @@ class SideNav(page_objects.base.BaseElement):
 
     # Actions
 
+    def click_group_header_button(self, group_name: str) -> None:
+        nav_group = self._get_nav_group(group_name=group_name)
+        nav_group.click_header_button()
+        return
+
     def expand_group(self, group_name: str) -> None:
         nav_group = self._get_nav_group(group_name=group_name)
         nav_group.expand()
@@ -127,13 +132,17 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
 
     # Actions
 
+    def click_header_button(self) -> None:
+        header_button = self._get_header_button()
+        header_button.click()
+        return
+
     def close(self) -> None:
         if self.is_closed():
             log_str = f"{self} already closed. Doing nothing."
             logging.debug(log_str)
         else:
-            header_button = self._get_header_button()
-            header_button.click()
+            self.click_header_button()
             self.wait_until_closed()
         return
 
@@ -142,16 +151,18 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
             log_str = f"{self} already open. Doing nothing."
             logging.debug(log_str)
         else:
-            header_button = self._get_header_button()
-            header_button.click()
+            self.click_header_button()
             self.wait_until_open()
         return
 
     def click(self) -> None:
         """
-        Recommend not using this method. Use one of the following instead:
-        * open() or expand()
-        * close() or collapse()
+        Overwriting inherited method. Recommend not using this method.
+
+        Use one of the following instead:
+        * click_header_button() - contains no logic
+        * open() or expand() - contains minimal logic
+        * close() or collapse() - contains minimal logic
         """
         log_str = f"This object {self.__class__} represents the entire group (header and links buttons).\n"
         log_str += "  Clicking this element could produce an unexpected result.\n"
