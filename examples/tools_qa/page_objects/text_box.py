@@ -1,3 +1,6 @@
+import logging
+import time
+
 import page_objects.base
 import page_objects.common
 
@@ -26,12 +29,67 @@ class Page(page_objects.base.BasePage):
 
 
 class SideNav(page_objects.base.BaseElement):
+    """
+    Represents the SideNav found on every page.
+
+    The idea is to be able to get/do everything you need with this class since it
+    encompasses the entirety of the nav. No need to get each individual SideNavGroup
+    or SideNavLinkButton, etc.
+    """
 
     def __init__(self, element: WebElement) -> None:
         super().__init__(element=element)
         self._locators['group'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'div.element-group'}
         self._name = 'Side Nav'
         return
+
+    # Properties
+
+    @property
+    def collapsed_groups(self) -> list[str]:
+        groups = []
+        for i in self._get_nav_groups():
+            if i.is_collapsed():
+                groups.append(i.name)
+        return groups
+
+    @property
+    def expanded_groups(self) -> list[str]:
+        groups = []
+        for i in self._get_nav_groups():
+            if i.is_expanded():
+                groups.append(i.name)
+        return groups
+
+    def group_is_collapsed(self, group_name: str) -> bool:
+        group = self._get_nav_group(group_name=group_name)
+        return group.is_collapsed()
+
+    def group_is_expanded(self, group_name: str) -> bool:
+        group = self._get_nav_group(group_name=group_name)
+        return group.is_expanded()
+
+    # Actions
+
+    def expand_group(self, group_name: str) -> None:
+        nav_group = self._get_nav_group(group_name=group_name)
+        nav_group.open()
+        return
+
+    def collapse_group(self, group_name: str) -> None:
+        nav_group = self._get_nav_group(group_name=group_name)
+        nav_group.close()
+        return
+
+    # Misc
+
+    def _get_nav_group(self, group_name: str) -> 'SideNavGroup':
+        for i in self._get_nav_groups():
+            if i.name.lower() == group_name.lower():
+                return i
+        log_str = f"No group found with name '{group_name}'."
+        logging.error(log_str)
+        raise ValueError(log_str)
 
     def _get_nav_groups(self) -> list['SideNavGroup']:
         groups = []
@@ -50,6 +108,8 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
         self._name = self.name
         return
 
+    # Properties
+
     def is_closed(self) -> bool:
         link_list = self.find_element(locator=self._locators['link_list'])
         classes = link_list.get_attribute('class')
@@ -64,6 +124,45 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
     def name(self) -> str:
         header_button = self._get_header_button()
         return header_button.name
+
+    # Actions
+
+    def close(self) -> None:
+        if self.is_closed():
+            log_str = f"{self} already closed. Doing nothing."
+            logging.debug(log_str)
+        else:
+            header_button = self._get_header_button()
+            header_button.click()
+            self.wait_until_closed()
+        return
+
+    def open(self) -> None:
+        if self.is_open():
+            log_str = f"{self} already open. Doing nothing."
+            logging.debug(log_str)
+        else:
+            header_button = self._get_header_button()
+            header_button.click()
+            self.wait_until_open()
+        return
+
+    def click(self) -> None:
+        """
+        Recommend not using this method. Use one of the following instead:
+        * open()
+        * close()
+        """
+        log_str = f"This object {self.__class__} represents the entire group (header and links buttons).\n"
+        log_str += "  Clicking this element could produce an unexpected result.\n"
+        log_str += f"  Recommend clicking {self._get_header_button().__class__} instead.\n"
+        log_str += f"    Clicking {self} anyway..."
+        logging.warning(log_str)
+        self.element.click()
+        time.sleep(0.5)
+        return
+
+    # Misc
 
     def _get_header_button(self) -> 'SideNavGroupHeaderButton':
         element = self.find_element(locator=self._locators['header_button'])
