@@ -209,15 +209,15 @@ class BaseOpenCloseElement(BaseElement, metaclass=abc.ABCMeta):
     #   But because a user option usually exists, I'm including the methods'
     #   prototypes here.
     #
-    # def close(self) -> None:
-    #     # user action to close the element (e.g. click on the menu icon)
-    #     # wait_until_closed()
-    #     return
-    #
-    # def open(self) -> None:
-    #     # user action to open the element (e.g. click on the menu icon)
-    #     # wait_until_opened()
-    #     return
+    def close(self) -> None:
+        # user action to close the element (e.g. click on the menu icon)
+        # wait_until_closed()
+        raise NotImplementedError
+
+    def open(self) -> None:
+        # user action to open the element (e.g. click on the menu icon)
+        # wait_until_opened()
+        raise NotImplementedError
 
     def wait_until_closed(self, timeout: float = 5.0, must_close: bool = True) -> None:
         end_time = time.time() + timeout
@@ -244,13 +244,13 @@ class BaseOpenCloseElement(BaseElement, metaclass=abc.ABCMeta):
     # The following methods are just wrappers. They can read easier for elements that
     #   open/close differently, e.g. an accordion-type element that expands/collapses.from
 
-    # def collapse(self) -> None:
-    #     self.close()
-    #     return
-    #
-    # def open(self) -> None:
-    #     self.open()
-    #     return
+    def collapse(self) -> None:
+        self.close()
+        return
+
+    def expand(self) -> None:
+        self.open()
+        return
 
     def is_collapsed(self) -> bool:
         return self.is_closed()

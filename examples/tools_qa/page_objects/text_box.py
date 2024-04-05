@@ -73,12 +73,12 @@ class SideNav(page_objects.base.BaseElement):
 
     def expand_group(self, group_name: str) -> None:
         nav_group = self._get_nav_group(group_name=group_name)
-        nav_group.open()
+        nav_group.expand()
         return
 
     def collapse_group(self, group_name: str) -> None:
         nav_group = self._get_nav_group(group_name=group_name)
-        nav_group.close()
+        nav_group.collapse()
         return
 
     # Misc
@@ -150,8 +150,8 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
     def click(self) -> None:
         """
         Recommend not using this method. Use one of the following instead:
-        * open()
-        * close()
+        * open() or expand()
+        * close() or collapse()
         """
         log_str = f"This object {self.__class__} represents the entire group (header and links buttons).\n"
         log_str += "  Clicking this element could produce an unexpected result.\n"
