@@ -176,6 +176,12 @@ class BaseElement(BaseMethods):
         super().__init__(driver=element.parent, element=element)
         return
 
+    def click(self) -> None:
+        logging.info(f"Clicking '{self}'...")
+        self.element.click()
+        time.sleep(0.5)
+        return
+
 
 class BaseLoadingElement(BaseLoadingMethods, BaseElement, metaclass=abc.ABCMeta):
     pass

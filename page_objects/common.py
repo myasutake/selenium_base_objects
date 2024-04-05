@@ -4,7 +4,6 @@ Classes used for common HTML elements.
 
 import abc
 import logging
-import time
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -49,12 +48,6 @@ class Checkbox(page_objects.base.BaseElement):
         else:
             log_str = f'{self} value already {value}; no need to click.'
             logging.debug(log_str)
-        return
-
-    def click(self) -> None:
-        logging.info(f'Clicking {self}...')
-        self.element.click()
-        time.sleep(0.5)
         return
 
     # I would define a method that returns the label, but there's no standard DOM structure for that.
