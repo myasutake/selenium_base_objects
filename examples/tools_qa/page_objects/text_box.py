@@ -61,11 +61,36 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
 
     @property
     def name(self) -> str:
-        header_element = self.find_element(locator=self._locators['header_button'])
-        return header_element.text
+        header_button = self._get_header_button()
+        return header_button.name
+
+    def _get_header_button(self) -> 'SideNavGroupHeaderButton':
+        element = self.find_element(locator=self._locators['header_button'])
+        return SideNavGroupHeaderButton(element=element)
 
     def __repr__(self) -> str:
         return f"{self.__class__} - '{self.name}'"
 
     def __str__(self) -> str:
         return f"Side Nav Group: '{self.name}'"
+
+
+class SideNavGroupHeaderButton(page_objects.base.BaseElement):
+
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        self._name = self.name
+        return
+
+    @property
+    def name(self) -> str:
+        # For some reason this has a trailing newline and space, e.g. 'Elements\n '
+        #   I can't imagine why we would ever need to reference that, so let's just
+        #   strip it.
+        return self.element.text.strip()
+
+    def __repr__(self) -> str:
+        return f"{self.__class__} - '{self.name}'"
+
+    def __str__(self) -> str:
+        return f"Side Nav Group Header Button: '{self.name}'"
