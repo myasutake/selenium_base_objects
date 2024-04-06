@@ -134,7 +134,7 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
 
     def click_header_button(self) -> None:
         header_button = self._get_header_button()
-        header_button.click()
+        header_button.click(scroll_into_view=True)
         return
 
     def close(self) -> None:
@@ -155,7 +155,7 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
             self.wait_until_open()
         return
 
-    def click(self) -> None:
+    def click(self, scroll_into_view: bool = False) -> None:
         """
         Overwriting inherited method. Recommend not using this method.
 
