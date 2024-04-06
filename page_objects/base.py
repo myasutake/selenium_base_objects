@@ -176,7 +176,18 @@ class BaseElement(BaseMethods):
         super().__init__(driver=element.parent, element=element)
         return
 
-    def click(self) -> None:
+    def click(self, scroll_into_view: bool = False) -> None:
+        """
+        Clicks the element.
+
+        If the element is covered up by another element, it may result in an
+        ElementClickIntercepted exception. Try calling this method with
+        scroll_into_view = True.
+        """
+        if scroll_into_view:
+            logging.debug(f"Scrolling {self} into view...")
+            self.driver.execute_script("arguments[0].scrollIntoView(true);",
+                                       self.element)
         logging.info(f"Clicking '{self}'...")
         self.element.click()
         time.sleep(0.5)
