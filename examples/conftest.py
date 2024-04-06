@@ -13,6 +13,7 @@ logging.config.dictConfig(misc.logging_config.config)
 def launch_chrome() -> WebDriver:
     logging.debug('Launching Chrome...')
     driver = webdriver.Chrome()
+    driver.set_window_size(width=1920, height=1080)
     yield driver
     logging.debug('Closing Chrome...')
     driver.quit()
