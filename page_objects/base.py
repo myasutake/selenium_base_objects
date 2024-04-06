@@ -182,6 +182,28 @@ class BaseElement(BaseMethods):
         time.sleep(0.5)
         return
 
+    def highlight(self, duration=3):
+        """
+        Highlights the element. Used for debugging purposes. Make sure your locators are good!
+        """
+        # Store original style so it can be reset later
+        original_style = self.element.get_attribute("style")
+
+        end_time = time.time() + duration
+        while time.time() < end_time:
+            # Style element with dashed red border
+            self.driver.execute_script("arguments[0].setAttribute(arguments[1], arguments[2])",
+                                       self.element,
+                                       "style",
+                                       "border: 2px solid red; border-style: dashed;")
+            time.sleep(0.2)
+            # Revert
+            self.driver.execute_script("arguments[0].setAttribute(arguments[1], arguments[2])",
+                                       self.element,
+                                       "style",
+                                       original_style)
+            time.sleep(0.2)
+
 
 class BaseLoadingElement(BaseLoadingMethods, BaseElement, metaclass=abc.ABCMeta):
     pass
