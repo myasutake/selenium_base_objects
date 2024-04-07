@@ -1,8 +1,9 @@
+"""This module contains code common to all ToolsQA pages."""
+
 import logging
 import time
 
 import page_objects.base
-import page_objects.common
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
@@ -13,10 +14,12 @@ class Page(page_objects.base.BasePage):
 
     def __init__(self, driver: WebDriver) -> None:
         super().__init__(driver)
+        # This class works for all pages, not just text-box. Defining this attribute in case
+        #   you want to instantiate this class directly and load the page.
         self._url = 'https://demoqa.com/text-box'
         self._locators['side_nav'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'div.left-pannel'}  # 'pannel' is not a typo
         self._locators['title'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'h1.text-center'}
-        self._name = 'Elements/Text Box Page'
+        self._name = 'ToolsQA Common Page'
         return
 
     def get_side_nav(self) -> 'SideNav':

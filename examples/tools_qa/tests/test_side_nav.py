@@ -3,22 +3,22 @@ import logging.config
 import pytest
 from selenium.common.exceptions import InvalidElementStateException
 
-from examples.tools_qa.page_objects import text_box
+import examples.tools_qa.page_objects.common
 import misc.logging_config
 
 logging.config.dictConfig(misc.logging_config.config)
 
 
 @pytest.fixture(scope='function')
-def navigate_to_page(launch_chrome) -> text_box.Page:
+def navigate_to_page(launch_chrome) -> examples.tools_qa.page_objects.common.Page:
     driver = launch_chrome
-    page = text_box.Page(driver)
+    page = examples.tools_qa.page_objects.common.Page(driver)
     page.load_page()
     return page
 
 
 @pytest.fixture(scope='function')
-def navigate_to_page_and_verify_initial_nav_state(navigate_to_page) -> text_box.SideNav:
+def navigate_to_page_and_verify_initial_nav_state(navigate_to_page) -> examples.tools_qa.page_objects.common.SideNav:
     expected_expanded_nav_groups = ['Elements']
 
     page = navigate_to_page
