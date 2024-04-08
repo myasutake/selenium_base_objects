@@ -51,17 +51,15 @@ class SideNav(page_objects.base.BaseElement):
     @property
     def collapsed_groups(self) -> list[str]:
         groups = []
-        for i in self._get_nav_groups():
-            if i.is_collapsed():
-                groups.append(i.name)
+        for i in self._get_nav_groups(state='collapsed'):
+            groups.append(i.name)
         return groups
 
     @property
     def expanded_groups(self) -> list[str]:
         groups = []
-        for i in self._get_nav_groups():
-            if i.is_expanded():
-                groups.append(i.name)
+        for i in self._get_nav_groups(state='expanded'):
+            groups.append(i.name)
         return groups
 
     def group_is_collapsed(self, group_name: str) -> bool:
@@ -99,10 +97,20 @@ class SideNav(page_objects.base.BaseElement):
         logging.error(log_str)
         raise ValueError(log_str)
 
-    def _get_nav_groups(self) -> list['SideNavGroup']:
+    def _get_nav_groups(self, state: str = 'all') -> list['SideNavGroup']:
+        valid_nav_group_states = ['all', 'expanded', 'collapsed']
+        if state.lower() not in valid_nav_group_states:
+            log_str = f"Invalid nav group state '{state}' specified. Must be one of {valid_nav_group_states}."
+            logging.error(log_str)
+            raise ValueError(log_str)
+
         groups = []
-        for i in self.find_elements(locator=self._locators['group']):
-            groups.append(SideNavGroup(element=i))
+        for i_element in self.find_elements(locator=self._locators['group']):
+            i_group = SideNavGroup(element=i_element)
+            if (state.lower() == 'all' or
+                    (state.lower() == 'expanded' and i_group.is_expanded()) or
+                    (state.lower() == 'collapsed' and i_group.is_collapsed())):
+                groups.append(i_group)
         return groups
 
 
