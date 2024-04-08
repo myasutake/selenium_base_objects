@@ -5,6 +5,7 @@ import time
 
 import page_objects.base
 
+from selenium.common.exceptions import InvalidElementStateException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
@@ -62,6 +63,13 @@ class SideNav(page_objects.base.BaseElement):
             groups.append(i.name)
         return groups
 
+    @property
+    def visible_links(self) -> list[str]:
+        links = []
+        for i in self._get_visible_link_buttons():
+            links.append(i.name)
+        return links
+
     def group_is_collapsed(self, group_name: str) -> bool:
         group = self._get_nav_group(group_name=group_name)
         return group.is_collapsed()
@@ -85,6 +93,16 @@ class SideNav(page_objects.base.BaseElement):
     def collapse_group(self, group_name: str) -> None:
         nav_group = self._get_nav_group(group_name=group_name)
         nav_group.collapse()
+        return
+
+    def click_link_button(self, link_name: str) -> None:
+        if len(self.visible_links) != len(set(self.visible_links)):
+            log_str = f'Found duplicate link buttons in nav. {self.visible_links}'
+            logging.error(log_str)
+            raise Exception(log_str)
+
+        link_button = self._get_link_button(link_name=link_name)
+        link_button.click(scroll_into_view=True)
         return
 
     # Misc
@@ -112,6 +130,23 @@ class SideNav(page_objects.base.BaseElement):
                     (state.lower() == 'collapsed' and i_group.is_collapsed())):
                 groups.append(i_group)
         return groups
+
+    def _get_link_button(self, link_name: str) -> 'SideNavLinkButton':
+        link_buttons = self._get_visible_link_buttons()
+        for i in link_buttons:
+            if i.name.lower() == link_name.lower():
+                return i
+        log_str = f"No link found with name '{link_name}'."
+        logging.error(log_str)
+        raise ValueError(log_str)
+
+    def _get_visible_link_buttons(self) -> list['SideNavLinkButton']:
+        all_link_buttons = []
+        for i_group in self._get_nav_groups(state='expanded'):
+            group_link_buttons = i_group.get_link_buttons()
+            for i_link_button in group_link_buttons:
+                all_link_buttons.append(i_link_button)
+        return all_link_buttons
 
 
 class SideNavGroup(page_objects.base.BaseOpenCloseElement):
@@ -146,6 +181,15 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
     def click_header_button(self) -> None:
         header_button = self._get_header_button()
         header_button.click(scroll_into_view=True)
+        return
+
+    def click_link_button(self, link_name: str) -> None:
+        if self.is_closed():
+            log_str = f"{self} is closed. No links are visible."
+            logging.error(log_str)
+            raise InvalidElementStateException(log_str)
+        link_button = self._get_link_button(link_name=link_name)
+        link_button.click()
         return
 
     def close(self) -> None:
@@ -190,7 +234,16 @@ class SideNavGroup(page_objects.base.BaseOpenCloseElement):
         element = self.find_element(locator=self._locators['header_button'])
         return SideNavGroupHeaderButton(element=element)
 
-    def _get_link_buttons(self) -> list['SideNavLinkButton']:
+    def _get_link_button(self, link_name: str) -> 'SideNavLinkButton':
+        link_buttons = self.get_link_buttons()
+        for i in link_buttons:
+            if i.name.lower() == link_name.lower():
+                return i
+        log_str = f"No link found with name '{link_name}'."
+        logging.error(log_str)
+        raise ValueError(log_str)
+
+    def get_link_buttons(self) -> list['SideNavLinkButton']:
         elements = self.find_elements(locator=self._locators['link_button'])
         buttons = []
         for i in elements:
