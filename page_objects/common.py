@@ -165,7 +165,14 @@ class TextField(CanDisable):
 
     @value.setter
     def value(self, input_: str) -> None:
+        self.clear()
+        logging.info(f"Sending keys '{input_}' to {self}...")
         self.element.send_keys(input_)
+        return
+
+    def clear(self):
+        logging.info(f"Clearing {self}...")
+        self.element.clear()
         return
 
 
