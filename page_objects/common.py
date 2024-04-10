@@ -184,13 +184,16 @@ class Option(CanDisable):
     def text(self) -> str:
         return self.element.text
 
-    def click(self) -> None:
+    def click(self, scroll_into_view: bool = False) -> None:
         if self.is_selected():
             log_str = f"Option '{self}' is already selected."
             logging.debug(log_str)
         if self.is_disabled():
             log_str = f"Option '{self}' is disabled."
             logging.warning(log_str)
+        if scroll_into_view:
+            logging.debug(f"Scrolling {self} into view...")
+            self.driver.execute_script("arguments[0].scrollIntoView(true);", self.element)
         logging.info(f"Clicking '{self}'...")
         self.element.click()
         return
