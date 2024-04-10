@@ -144,14 +144,19 @@ class Dropdown(CanDisable):
         return
 
 
-class InputText(CanDisable):
+class TextField(CanDisable):
     """
-    <input type="text">
+    Various text-type fields.
+
+    The following work; I'm sure many more also do.
+    *  <input type="text">
+    *  <input type="email">
+    *  <textarea>
     """
 
     def __init__(self, element: WebElement) -> None:
         super().__init__(element=element)
-        self._name = 'Input Text Field'
+        self._name = 'Text Field'
         return
 
     @property
