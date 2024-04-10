@@ -151,6 +151,7 @@ class InputText(CanDisable):
 
     def __init__(self, element: WebElement) -> None:
         super().__init__(element=element)
+        self._name = 'Input Text Field'
         return
 
     @property
@@ -162,10 +163,6 @@ class InputText(CanDisable):
         self.element.send_keys(input_)
         return
 
-    @property
-    def name(self) -> str:
-        return 'Input Text Field'
-
 
 class Option(CanDisable):
     """
@@ -174,7 +171,7 @@ class Option(CanDisable):
 
     def __init__(self, element: WebElement) -> None:
         super().__init__(element=element)
-        self._name = self.name
+        self._name = f"Option: '{self.text}'"
         return
 
     def is_selected(self) -> bool:
@@ -197,7 +194,3 @@ class Option(CanDisable):
         logging.info(f"Clicking '{self}'...")
         self.element.click()
         return
-
-    @property
-    def name(self) -> str:
-        return f"Option: '{self.text}'"
