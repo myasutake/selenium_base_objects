@@ -1,3 +1,5 @@
+from typing import Optional
+
 import page_objects.base
 import page_objects.common
 import examples.tools_qa.page_objects.common
@@ -14,12 +16,18 @@ class Page(examples.tools_qa.page_objects.common.Page):
         self._name = 'Elements/Text-Box Page'
         self._locators['full_name_input'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#userName'}
         self._locators['email_input'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#userEmail'}
-        self._locators['current_address_textarea'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#currentAddress'}
-        self._locators['permanent_address_textarea'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#permanentAddress'}
+        self._locators['current_address_textarea'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'textarea#currentAddress'}
+        self._locators['permanent_address_textarea'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'textarea#permanentAddress'}
         self._locators['submit_button'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#submit'}
+        self._locators['submitted_name'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#name'}
+        self._locators['submitted_email'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': '#email'}
+        self._locators['submitted_current_address'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'p#currentAddress'}
+        self._locators['submitted_permanent_address'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'p#permanentAddress'}
         return
 
     # Properties
+
+    #   Inputs
 
     @property
     def current_address_textarea(self) -> str:
@@ -56,6 +64,48 @@ class Page(examples.tools_qa.page_objects.common.Page):
     def permanent_address_textarea(self, value: str) -> None:
         self._get_permanent_address_textarea().value = value
         return
+
+    #  Submitted Values
+
+    @property
+    def submitted_name(self) -> Optional[str]:
+        if not self.submitted_name_field_is_visible():
+            return None
+        else:
+            return self.find_element(locator=self._locators['submitted_name']).text
+
+    @property
+    def submitted_email(self) -> Optional[str]:
+        if not self.submitted_email_field_is_visible():
+            return None
+        else:
+            return self.find_element(locator=self._locators['submitted_email']).text
+
+    @property
+    def submitted_current_address(self) -> Optional[str]:
+        if not self.submitted_current_address_field_is_visible():
+            return None
+        else:
+            return self.find_element(locator=self._locators['submitted_current_address']).text
+
+    @property
+    def submitted_permanent_address(self) -> Optional[str]:
+        if not self.submitted_permanent_address_field_is_visible():
+            return None
+        else:
+            return self.find_element(locator=self._locators['submitted_permanent_address']).text
+
+    def submitted_name_field_is_visible(self) -> bool:
+        return self.element_exists_and_is_displayed(locator=self._locators['submitted_name'])
+
+    def submitted_email_field_is_visible(self) -> bool:
+        return self.element_exists_and_is_displayed(locator=self._locators['submitted_email'])
+
+    def submitted_current_address_field_is_visible(self) -> bool:
+        return self.element_exists_and_is_displayed(locator=self._locators['submitted_current_address'])
+
+    def submitted_permanent_address_field_is_visible(self) -> bool:
+        return self.element_exists_and_is_displayed(locator=self._locators['submitted_permanent_address'])
 
     # Actions
 
