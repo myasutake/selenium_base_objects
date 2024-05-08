@@ -11,11 +11,12 @@ from selenium.webdriver.remote.webelement import WebElement
 import page_objects.base
 
 
-class CanDisable(page_objects.base.BaseElement, metaclass=abc.ABCMeta):
+class CanDisable(metaclass=abc.ABCMeta):
 
-    def __init__(self, element: WebElement) -> None:
-        super().__init__(element=element)
-        return
+    @property
+    @abc.abstractmethod
+    def element(self) -> WebElement:
+        pass
 
     def is_disabled(self) -> bool:
         if self.element.get_attribute('disabled') == 'true':
@@ -53,7 +54,7 @@ class Checkbox(page_objects.base.BaseElement):
     # I would define a method that returns the label, but there's no standard DOM structure for that.
 
 
-class Dropdown(CanDisable):
+class Dropdown(page_objects.base.BaseElement, CanDisable):
     """
     <select>
     """
@@ -144,7 +145,7 @@ class Dropdown(CanDisable):
         return
 
 
-class TextField(CanDisable):
+class TextField(page_objects.base.BaseElement, CanDisable):
     """
     Various text-type fields.
 
@@ -176,7 +177,7 @@ class TextField(CanDisable):
         return
 
 
-class Option(CanDisable):
+class Option(page_objects.base.BaseElement, CanDisable):
     """
     <option>
     """
