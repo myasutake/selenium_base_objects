@@ -45,11 +45,19 @@ class BaseMethods(metaclass=abc.ABCMeta):
     """Methods used by all Page Objects"""
 
     def __init__(self, driver: WebDriver, element: Optional[WebElement] = None) -> None:
-        self.driver = driver
-        self.element = element
+        self._driver = driver
+        self._element = element
         self._locators = dict()
         self._name = ''
         return
+
+    @property
+    def driver(self) -> WebDriver:
+        return self._driver
+
+    @property
+    def element(self) -> WebElement:
+        return self._element
 
     def element_exists(self, locator: Locator) -> bool:
         try:
