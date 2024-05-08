@@ -25,7 +25,14 @@ class CanDisable(metaclass=abc.ABCMeta):
             return False
 
 
-class Checkbox(page_objects.base.BaseElement):
+class Input(page_objects.base.BaseElement, CanDisable):
+    """
+    <input>
+    """
+    pass
+
+
+class Checkbox(Input):
     """
     <input type="checkbox">
     """
