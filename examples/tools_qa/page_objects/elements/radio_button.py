@@ -1,3 +1,5 @@
+from typing import Optional
+
 import page_objects.base
 import page_objects.common
 import examples.tools_qa.page_objects.common
@@ -16,6 +18,7 @@ class Page(examples.tools_qa.page_objects.common.Page):
         self._locators['radio_divs'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'div.custom-radio'}
         self._locators['radio_buttons'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'input'}
         self._locators['radio_labels'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'label'}
+        self._locators['result'] = {'scope': 'driver', 'by': By.CSS_SELECTOR, 'value': 'p.mt-3'}
         return
 
     # Radio
@@ -28,6 +31,14 @@ class Page(examples.tools_qa.page_objects.common.Page):
     def selected_radio_button(self, label: str) -> None:
         self._get_radio_button_group().selected_radio_button = label
         return
+
+    # Results Text
+
+    @property
+    def results_text(self) -> Optional[str]:
+        if not self.element_exists_and_is_displayed(locator=self._locators['result']):
+            return None
+        return self.find_element(self._locators['result']).text
 
     # Misc
 
