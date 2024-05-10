@@ -18,6 +18,19 @@ class Page(examples.tools_qa.page_objects.common.Page):
         self._locators['radio_labels'] = {'scope': 'element', 'by': By.CSS_SELECTOR, 'value': 'label'}
         return
 
+    # Radio
+
+    @property
+    def selected_radio_button(self) -> str:
+        return self._get_radio_button_group().selected_radio_button
+
+    @selected_radio_button.setter
+    def selected_radio_button(self, label: str) -> None:
+        self._get_radio_button_group().selected_radio_button = label
+        return
+
+    # Misc
+
     def _get_radio_button_group(self) -> page_objects.common.RadioGroup:
         return page_objects.common.RadioGroup(radio_list=self._get_radio_buttons())
 
