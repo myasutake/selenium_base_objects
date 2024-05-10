@@ -12,6 +12,8 @@ from selenium.webdriver.remote.webelement import WebElement
 import page_objects.base
 
 
+# Misc
+
 class CanDisable(metaclass=abc.ABCMeta):
 
     @property
@@ -25,6 +27,8 @@ class CanDisable(metaclass=abc.ABCMeta):
         else:
             return False
 
+
+# Inputs
 
 class Input(page_objects.base.BaseElement, CanDisable):
     """
@@ -61,6 +65,79 @@ class Checkbox(Input):
 
     # I would define a method that returns the label, but there's no standard DOM structure for that.
 
+
+class Radio(Input):
+    """
+    <input type="radio">
+    """
+
+    def __init__(self, input_element: WebElement, text_element: WebElement) -> None:
+        super().__init__(element=input_element)
+        self._text_element = text_element
+        self._name = f"Radio Button, Group '{self.group_name}', Label '{self.text}'"
+        return
+
+    @property
+    def group_name(self) -> str:
+        return self.element.get_attribute(name='name')
+
+    def is_selected(self) -> bool:
+        return self.element.is_selected()
+
+    @property
+    def text(self) -> str:
+        return self._text_element.text
+
+
+class RadioGroup:
+    """
+    A group of Radio objects (all must belong to the same group).
+    """
+
+    def __init__(self, radio_list: list[Radio]) -> None:
+        self._radio_list = radio_list
+        self._verify_group_names()
+        return
+
+    @property
+    def selected_radio_button_object(self) -> Optional[Radio]:
+        for i_radio in self._radio_list:
+            if i_radio.is_selected():
+                return i_radio
+        return None
+
+    @property
+    def selected_radio_button(self) -> Optional[str]:
+        if self.selected_radio_button_object is not None:
+            return self.selected_radio_button_object.text
+        return None
+
+    @selected_radio_button.setter
+    def selected_radio_button(self, text: str) -> None:
+        for i_radio in self._radio_list:
+            if i_radio.text == text:
+                i_radio.click()
+                return
+        log_str = f"Radio button w/ label '{text}' not found."
+        logging.error(log_str)
+        raise ValueError(log_str)
+
+    def _verify_group_names(self) -> None:
+        group_names = []
+        for i_radio in self._radio_list:
+            group_names.append(i_radio.group_name)
+        number_of_group_names = len(set(group_names))
+
+        if number_of_group_names != 1:
+            log_str = "All <input type=\"radio\"> elements must have the same 'name' attribute."
+            log_str += f"  Names found: {group_names}"
+            logging.error(log_str)
+            raise ValueError(log_str)
+
+        return
+
+
+# Dropdown
 
 class Dropdown(page_objects.base.BaseElement, CanDisable):
     """
@@ -153,38 +230,6 @@ class Dropdown(page_objects.base.BaseElement, CanDisable):
         return
 
 
-class TextField(page_objects.base.BaseElement, CanDisable):
-    """
-    Various text-type fields.
-
-    The following work; I'm sure many more also do.
-    *  <input type="text">
-    *  <input type="email">
-    *  <textarea>
-    """
-
-    def __init__(self, element: WebElement) -> None:
-        super().__init__(element=element)
-        self._name = 'Text Field'
-        return
-
-    @property
-    def value(self) -> str:
-        return self.element.get_attribute('value')
-
-    @value.setter
-    def value(self, input_: str) -> None:
-        self.clear()
-        logging.info(f"Sending keys '{input_}' to {self}...")
-        self.element.send_keys(input_)
-        return
-
-    def clear(self):
-        logging.info(f"Clearing {self}...")
-        self.element.clear()
-        return
-
-
 class Option(page_objects.base.BaseElement, CanDisable):
     """
     <option>
@@ -220,72 +265,35 @@ class Option(page_objects.base.BaseElement, CanDisable):
         return
 
 
-class Radio(Input):
+# Other
+
+class TextField(page_objects.base.BaseElement, CanDisable):
     """
-    <input type="radio">
+    Various text-type fields.
+
+    The following work; I'm sure many more also do.
+    *  <input type="text">
+    *  <input type="email">
+    *  <textarea>
     """
 
-    def __init__(self, input_element: WebElement, text_element: WebElement) -> None:
-        super().__init__(element=input_element)
-        self._text_element = text_element
-        self._name = f"Radio Button, Group '{self.group_name}', Label '{self.text}'"
+    def __init__(self, element: WebElement) -> None:
+        super().__init__(element=element)
+        self._name = 'Text Field'
         return
 
     @property
-    def group_name(self) -> str:
-        return self.element.get_attribute(name='name')
+    def value(self) -> str:
+        return self.element.get_attribute('value')
 
-    def is_selected(self) -> bool:
-        return self.element.is_selected()
-
-    @property
-    def text(self) -> str:
-        return self._text_element.text
-
-
-class RadioGroup:
-    """
-    A group of Radio objects (all must belong to the same group).
-    """
-
-    def __init__(self, radio_list: list[Radio]) -> None:
-        self._radio_list = radio_list
-        self._verify_group_names()
+    @value.setter
+    def value(self, input_: str) -> None:
+        self.clear()
+        logging.info(f"Sending keys '{input_}' to {self}...")
+        self.element.send_keys(input_)
         return
 
-    @property
-    def selected_radio_button_object(self) -> Optional[Radio]:
-        for i_radio in self._radio_list:
-            if i_radio.is_selected():
-                return i_radio
-        return None
-
-    @property
-    def selected_radio_button(self) -> Optional[str]:
-        if self.selected_radio_button_object is not None:
-            return self.selected_radio_button_object.text
-        return None
-
-    @selected_radio_button.setter
-    def selected_radio_button(self, text: str) -> None:
-        for i_radio in self._radio_list:
-            if i_radio.text == text:
-                i_radio.click()
-                return
-        log_str = f"Radio button w/ label '{text}' not found."
-        logging.error(log_str)
-        raise ValueError(log_str)
-
-    def _verify_group_names(self) -> None:
-        group_names = []
-        for i_radio in self._radio_list:
-            group_names.append(i_radio.group_name)
-        number_of_group_names = len(set(group_names))
-
-        if number_of_group_names != 1:
-            log_str = "All <input type=\"radio\"> elements must have the same 'name' attribute."
-            log_str += f"  Names found: {group_names}"
-            logging.error(log_str)
-            raise ValueError(log_str)
-
+    def clear(self):
+        logging.info(f"Clearing {self}...")
+        self.element.clear()
         return
