@@ -4,6 +4,7 @@ Classes used for common HTML elements.
 
 import abc
 import logging
+from typing import Optional
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
@@ -216,4 +217,75 @@ class Option(page_objects.base.BaseElement, CanDisable):
             self.driver.execute_script("arguments[0].scrollIntoView(true);", self.element)
         logging.info(f"Clicking '{self}'...")
         self.element.click()
+        return
+
+
+class Radio(Input):
+    """
+    <input type="radio">
+    """
+
+    def __init__(self, input_element: WebElement, text_element: WebElement) -> None:
+        super().__init__(element=input_element)
+        self._text_element = text_element
+        self._name = f"Radio Button, Group '{self.group_name}', Label '{self.text}'"
+        return
+
+    @property
+    def group_name(self) -> str:
+        return self.element.get_attribute(name='name')
+
+    def is_selected(self) -> bool:
+        return self.element.is_selected()
+
+    @property
+    def text(self) -> str:
+        return self._text_element.text
+
+
+class RadioGroup:
+    """
+    A group of Radio objects (all must belong to the same group).
+    """
+
+    def __init__(self, radio_list: list[Radio]) -> None:
+        self._radio_list = radio_list
+        self._verify_group_names()
+        return
+
+    @property
+    def selected_radio_button_object(self) -> Optional[Radio]:
+        for i_radio in self._radio_list:
+            if i_radio.is_selected():
+                return i_radio
+        return None
+
+    @property
+    def selected_radio_button(self) -> Optional[str]:
+        if self.selected_radio_button_object is not None:
+            return self.selected_radio_button_object.text
+        return None
+
+    @selected_radio_button.setter
+    def selected_radio_button(self, text: str) -> None:
+        for i_radio in self._radio_list:
+            if i_radio.text == text:
+                i_radio.click()
+                return
+        log_str = f"Radio button w/ label '{text}' not found."
+        logging.error(log_str)
+        raise ValueError(log_str)
+
+    def _verify_group_names(self) -> None:
+        group_names = []
+        for i_radio in self._radio_list:
+            group_names.append(i_radio.group_name)
+        number_of_group_names = len(set(group_names))
+
+        if number_of_group_names != 1:
+            log_str = "All <input type=\"radio\"> elements must have the same 'name' attribute."
+            log_str += f"  Names found: {group_names}"
+            logging.error(log_str)
+            raise ValueError(log_str)
+
         return
