@@ -176,6 +176,16 @@ class BaseElement(BaseMethods):
         super().__init__(driver=element.parent, element=element)
         return
 
+    @property
+    def element_to_click(self) -> WebElement:
+        """
+        Most of the time, you want BaseElement.click() to click itself.
+
+        Sometimes, you might want to click something else. In such a case, have
+        your subclass override this method.
+        """
+        return self.element
+
     def click(self, scroll_into_view: bool = False) -> None:
         """
         Clicks the element.
@@ -187,9 +197,9 @@ class BaseElement(BaseMethods):
         if scroll_into_view:
             logging.debug(f"Scrolling {self} into view...")
             self.driver.execute_script("arguments[0].scrollIntoView(true);",
-                                       self.element)
+                                       self.element_to_click)
         logging.info(f"Clicking '{self}'...")
-        self.element.click()
+        self.element_to_click.click()
         time.sleep(0.5)
         return
 
