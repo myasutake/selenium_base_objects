@@ -186,19 +186,36 @@ class BaseElement(BaseMethods):
         """
         return self.element
 
-    def click(self, scroll_into_view: bool = False) -> None:
+    def click(self, scroll_into_view: bool = False, scroll_align_top: bool = True, scroll_vertical_offset: int = 0) -> None:
         """
         Clicks the element.
 
         If the element is covered up by another element, it may result in an
         ElementClickIntercepted exception. Try calling this method with
         scroll_into_view = True.
+
+        scroll_align_top will scroll until the element to click is either at the
+        top or bottom of the window. scroll_vertical_offset will then scroll
+        the specified amount of pixels before clicking the element.
         """
         if scroll_into_view:
-            logging.debug(f"Scrolling {self} into view...")
-            self.driver.execute_script("arguments[0].scrollIntoView(true);",
+            if scroll_align_top:
+                top_or_bottom = 'top'
+            else:
+                top_or_bottom = 'bottom'
+            logging.debug(f"Scrolling {self} into view, aligning to {top_or_bottom}...")
+            self.driver.execute_script(f"arguments[0].scrollIntoView({str(scroll_align_top).lower()});",
                                        self.element_to_click)
-        logging.info(f"Clicking '{self}'...")
+
+            if scroll_vertical_offset != 0:
+                if scroll_vertical_offset < 0:
+                    up_or_down = 'up'
+                else:
+                    up_or_down = 'down'
+                logging.debug(f"Scrolling {up_or_down} {abs(scroll_vertical_offset)} pixels...")
+                self.driver.execute_script(f"scrollBy(0, {scroll_vertical_offset})")
+
+        logging.info(f"Clicking {self}...")
         self.element_to_click.click()
         time.sleep(0.5)
         return
