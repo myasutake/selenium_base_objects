@@ -215,6 +215,10 @@ class BaseElement(BaseMethods):
                 logging.debug(f"Scrolling {up_or_down} {abs(scroll_vertical_offset)} pixels...")
                 self.driver.execute_script(f"scrollBy(0, {scroll_vertical_offset})")
 
+            # Delay before clicking
+            #   Sometimes the scroll needs time to finish, despite what it seems.
+            time.sleep(0.5)
+
         logging.info(f"Clicking {self}...")
         self.element_to_click.click()
         time.sleep(0.5)
